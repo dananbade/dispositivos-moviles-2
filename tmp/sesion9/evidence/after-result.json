@@ -1,0 +1,23 @@
+{
+  "mode": "after",
+  "platform": "Web - Chromium headless",
+  "widths": [
+    390,
+    1280
+  ],
+  "deleteButton": {
+    "x": 279.046875,
+    "y": 487,
+    "width": 67.953125,
+    "height": 44
+  },
+  "editButton": {
+    "x": 215.421875,
+    "y": 487,
+    "width": 55.625,
+    "height": 44
+  },
+  "confirmationVisible": true,
+  "itemStillVisibleAfterFirstPress": true,
+  "consoleErrors": []
+}

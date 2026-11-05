@@ -1,0 +1,53 @@
+{
+  "environment": "Web - Google Chrome, automatización Playwright",
+  "testedWidths": [
+    390,
+    1280
+  ],
+  "testedAt": "2026-10-21T14:11:31.182Z",
+  "results": [
+    {
+      "id": "T01",
+      "name": "Carga inicial a 390 px",
+      "expected": "El inventario se muestra en una columna sin error.",
+      "observed": "Se mostraron 4 códigos y la pantalla cargó.",
+      "status": "Cumple"
+    },
+    {
+      "id": "T02",
+      "name": "Formulario vacío",
+      "expected": "No crea registro y explica qué falta.",
+      "observed": "Mostró aviso general y error en el campo nombre.",
+      "status": "Cumple"
+    },
+    {
+      "id": "T03",
+      "name": "Registro y persistencia",
+      "expected": "El nuevo equipo permanece tras recargar.",
+      "observed": "El equipo se creó y siguió visible después de recargar.",
+      "status": "Cumple"
+    },
+    {
+      "id": "T04",
+      "name": "Confirmar y cancelar eliminación",
+      "expected": "El primer toque no borra y Cancelar conserva el registro.",
+      "observed": "Mostró confirmación; el registro permaneció antes y después de cancelar.",
+      "status": "Cumple"
+    },
+    {
+      "id": "T05",
+      "name": "Eliminación confirmada",
+      "expected": "Borra solo tras confirmar y muestra resultado.",
+      "observed": "El registro desapareció y se mostró el aviso de éxito.",
+      "status": "Cumple"
+    },
+    {
+      "id": "T06",
+      "name": "Distribución a 1280 px",
+      "expected": "Los primeros tres equipos forman una fila.",
+      "observed": "Los tres primeros equipos quedaron alineados en la misma fila.",
+      "status": "Cumple"
+    }
+  ],
+  "consoleErrors": []
+}

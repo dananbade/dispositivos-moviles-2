@@ -1,0 +1,83 @@
+{
+  "plataforma": "Google Chrome en Windows",
+  "anchos": [
+    390,
+    1280
+  ],
+  "fecha": "2026-11-01T15:32:05.867Z",
+  "resultados": [
+    {
+      "caso": "Ubicación",
+      "entrada": "¿Dónde está ubicado?",
+      "esperado": "Reconocer ubicación y mostrar Oficina Admin.",
+      "observado": "Intención: ubicación. Similitud: 0.63. Dato del inventario: Oficina Admin",
+      "cumple": true
+    },
+    {
+      "caso": "Nombre",
+      "entrada": "¿Cómo se llama?",
+      "esperado": "Reconocer nombre y mostrar PC Escritorio 01.",
+      "observado": "Intención: nombre. Similitud: 0.71. Dato del inventario: PC Escritorio 01",
+      "cumple": true
+    },
+    {
+      "caso": "Estado",
+      "entrada": "¿En qué estado se encuentra?",
+      "esperado": "Reconocer estado y mostrar Operativo.",
+      "observado": "Intención: estado. Similitud: 0.50. Dato del inventario: Operativo",
+      "cumple": true
+    },
+    {
+      "caso": "Vacío",
+      "entrada": "Enviar tres espacios.",
+      "esperado": "Solicitar que se escriba una pregunta.",
+      "observado": "Escribe una pregunta antes de consultar.",
+      "cumple": true
+    },
+    {
+      "caso": "Fuera de alcance",
+      "entrada": "¿Va a llover mañana?",
+      "esperado": "Mostrar una respuesta alternativa.",
+      "observado": "No identifico una sola intención. Pregunta por el nombre, la ubicación o el estado del equipo.",
+      "cumple": true
+    },
+    {
+      "caso": "Ambigüedad",
+      "entrada": "nombre estado",
+      "esperado": "Mostrar una respuesta alternativa por empate.",
+      "observado": "No identifico una sola intención. Pregunta por el nombre, la ubicación o el estado del equipo.",
+      "cumple": true
+    },
+    {
+      "caso": "Dato ausente",
+      "entrada": "Equipo temporal sin ubicación.",
+      "esperado": "Mostrar Dato no registrado sin inventar contenido.",
+      "observado": "Intención: ubicación. Similitud: 0.63. Dato del inventario: Dato no registrado en el inventario.",
+      "cumple": true
+    },
+    {
+      "caso": "Negación",
+      "entrada": "No quiero saber la ubicación.",
+      "esperado": "Registrar la limitación del modelo basado en palabras.",
+      "observado": "Intención: ubicación. Similitud: 0.22. Dato del inventario: Oficina Admin",
+      "cumple": true
+    },
+    {
+      "caso": "Cambio de equipo",
+      "entrada": "Seleccionar el siguiente equipo y consultar ubicación.",
+      "esperado": "Mostrar Laptop Dell 14 y Soporte Técnico.",
+      "observado": "Laptop Dell 14\". Intención: ubicación. Similitud: 0.63. Dato del inventario: Soporte Técnico",
+      "cumple": true
+    },
+    {
+      "caso": "Adaptación",
+      "entrada": "Comparar anchos de 390 px y 1280 px.",
+      "esperado": "Formulario apilado en ancho pequeño y en fila en ancho amplio.",
+      "observado": "390 px: apilado. 1280 px: en fila.",
+      "cumple": true
+    }
+  ],
+  "total": 10,
+  "aprobados": 10,
+  "erroresConsola": []
+}
