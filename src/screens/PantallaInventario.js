@@ -428,130 +428,18 @@ function siguienteCodigo(lista) {
 
 
 export function PantallaInventario() {
-  const [pestana, setPestana] = useState('adaptativa');
-
-  return (
-    <View style={styles.contenedorRaiz}>
-      <View style={styles.tabsBar}>
-        {[
-          { id: 'original', label: 'Original' },
-          { id: 'optimizada', label: 'Optimizada' },
-          { id: 'adaptativa', label: 'Adaptativa' },
-        ].map((tab) => (
-          <Pressable
-            key={tab.id}
-            style={[styles.tabBtn, pestana === tab.id && styles.tabBtnActivo]}
-            onPress={() => setPestana(tab.id)}
-            accessibilityRole="button"
-          >
-            <Text style={[styles.tabBtnTexto, pestana === tab.id && styles.tabBtnTextoActivo]}>
-              {tab.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-
-      {pestana === 'original' && <PantallaOriginal />}
-      {pestana === 'optimizada' && <PantallaOptimizada />}
-      {pestana === 'adaptativa' && <PantallaAdaptativa />}
-    </View>
-  );
-}
-
-
-function useEquiposSoloLectura() {
-  const [equipos, setEquipos] = useState([]);
-  const [cargando, setCargando] = useState(true);
-
-  useEffect(() => {
-    let activo = true;
-    cargarEquipos().then((lista) => {
-      if (!activo) return;
-      setEquipos(lista);
-      setCargando(false);
-    });
-    return () => {
-      activo = false;
-    };
-  }, []);
-
-  return { equipos, cargando };
-}
-
-function colorEstadoDe(estado) {
-  if (estado === 'Operativo') return { color: '#059669', bg: '#ECFDF5' };
-  if (estado === 'En reparación') return { color: '#D97706', bg: '#FFFBEB' };
-  return { color: '#DC2626', bg: '#FEF2F2' };
-}
-
-
-function PantallaOriginal() {
-  const { equipos, cargando } = useEquiposSoloLectura();
-
-  return (
-    <View style={styles.contenedorComparativo}>
-      <Text style={styles.tituloComparativo}>Versión Original (ScrollView + map)</Text>
-      {cargando ? (
-        <Text style={styles.textoCargandoComparativo}>Cargando...</Text>
-      ) : (
-        <ScrollView contentContainerStyle={styles.listaComparativa} showsVerticalScrollIndicator={false}>
-          {equipos.map((item) => (
-            <TarjetaComparativa key={item.id} item={item} />
-          ))}
-        </ScrollView>
-      )}
-    </View>
-  );
-}
-
-
-function PantallaOptimizada() {
-  const { equipos, cargando } = useEquiposSoloLectura();
-
-  return (
-    <View style={styles.contenedorComparativo}>
-      <Text style={styles.tituloComparativo}>Versión Optimizada (FlatList)</Text>
-      {cargando ? (
-        <Text style={styles.textoCargandoComparativo}>Cargando...</Text>
-      ) : (
-        <FlatList
-          data={equipos}
-          keyExtractor={(item) => String(item.id)}
-          initialNumToRender={10}
-          renderItem={({ item }) => <TarjetaComparativa item={item} />}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listaComparativa}
-        />
-      )}
-    </View>
-  );
-}
-
-function TarjetaComparativa({ item }) {
-  const { color, bg } = colorEstadoDe(item.estado);
-  return (
-    <View style={styles.itemCard}>
-      <View style={styles.itemHeader}>
-        <Text style={styles.itemCode}>{item.codigo}</Text>
-        <View style={[styles.badge, { backgroundColor: bg }]}>
-          <Text style={[styles.badgeText, { color }]}>{item.estado}</Text>
-        </View>
-      </View>
-      <Text style={styles.itemName}>{item.nombre}</Text>
-      <Text style={styles.itemLocation}>📍 {item.ubicacion}</Text>
-      <Text style={styles.itemDetail}>Precio {item.precioTipo === 'estimado' ? 'estimado' : 'registrado'}: {item.precio == null || item.precio === '' ? 'Sin registrar' : '$' + Number(item.precio).toLocaleString('es-CO') + ' COP'}</Text>
-      <Text style={styles.itemDetail}>Características de referencia: {item.caracteristicas?.trim() || 'Por confirmar'}</Text>
-    </View>
-  );
+  return <PantallaAdaptativa />;
 }
 
 
 function PantallaAdaptativa() {
+  const { width, height } = useWindowDimensions();
   const [equipos, setEquipos] = useState([]);
   const [nombre, setNombre] = useState('');
   const [ubicacion, setUbicacion] = useState('');
   const [precio, setPrecio] = useState('');
   const [caracteristicas, setCaracteristicas] = useState('');
+  const [busqueda, setBusqueda] = useState('');
   const [filtro, setFiltro] = useState('Todos');
   const [idEditando, setIdEditando] = useState(null);
   const [idPendienteEliminar, setIdPendienteEliminar] = useState(null);
@@ -566,7 +454,6 @@ function PantallaAdaptativa() {
   const precioRef = useRef(null);
   const timerAviso = useRef(null);
 
-  const { width } = useWindowDimensions();
   const numColumns = width >= 1024 ? 3 : width >= 768 ? 2 : 1;
 
   const manejarRuedaInventario = (evento) => {
@@ -599,9 +486,9 @@ function PantallaAdaptativa() {
 
   
   const guardarEnStorage = async (nuevaLista) => {
-    setEquipos(nuevaLista);
     try {
       await guardarEquipos(nuevaLista);
+      setEquipos(nuevaLista);
       return true;
     } catch (error) {
       console.error('Error al guardar datos:', error);
@@ -636,6 +523,8 @@ function PantallaAdaptativa() {
     }
 
     if (idEditando !== null) {
+      const codigoEditado = equipoEnEdicion?.codigo || 'Equipo';
+      const ubicacionActualizada = ubicacion.trim();
       const nuevaLista = equipos.map((item) => {
         if (String(item.id) === String(idEditando)) {
           return { ...item, nombre: nombre.trim(), ubicacion: ubicacion.trim(), precio: precio.trim() ? Number(precio.replace(',', '.')) : null, precioTipo: precio.trim() ? 'registrado' : null, caracteristicas: caracteristicas.trim() };
@@ -643,8 +532,9 @@ function PantallaAdaptativa() {
         return item;
       });
       const ok = await guardarEnStorage(nuevaLista);
+      if (!ok) return;
       setIdEditando(null);
-      if (ok) mostrarAviso('ok', 'Equipo actualizado correctamente.');
+      mostrarAviso('ok', `${codigoEditado} actualizado. Nueva ubicación: ${ubicacionActualizada}.`);
     } else {
       const nuevo = {
         id: String(Date.now()),
@@ -658,6 +548,7 @@ function PantallaAdaptativa() {
       };
       const nuevaLista = [nuevo, ...equipos];
       const ok = await guardarEnStorage(nuevaLista);
+      if (!ok) return;
       if (ok) mostrarAviso('ok', `Equipo ${nuevo.codigo} guardado.`);
 
       setTimeout(() => nombreRef.current?.focus(), 0);
@@ -678,6 +569,10 @@ function PantallaAdaptativa() {
     setIdEditando(item.id);
     setIdPendienteEliminar(null);
     setErrores({});
+    setTimeout(() => {
+      listaInventarioRef.current?.scrollToOffset({ offset: 0, animated: true });
+      nombreRef.current?.focus();
+    }, 0);
   };
 
   const cancelarEdicion = () => {
@@ -694,30 +589,69 @@ function PantallaAdaptativa() {
   };
 
   const cancelarEliminacion = () => {
+    const equipoConservado = equipos.find((item) => String(item.id) === String(idPendienteEliminar));
     setIdPendienteEliminar(null);
+    if (equipoConservado) mostrarAviso('ok', `${equipoConservado.codigo} se conservó en el inventario.`);
   };
 
   const confirmarEliminarEquipo = async (idTarget) => {
+    const equipoEliminado = equipos.find((item) => String(item.id) === String(idTarget));
     const nuevaLista = equipos.filter((item) => String(item.id) !== String(idTarget));
     const ok = await guardarEnStorage(nuevaLista);
     setIdPendienteEliminar(null);
     if (String(idEditando) === String(idTarget)) {
       cancelarEdicion();
     }
-    if (ok) mostrarAviso('ok', 'Equipo eliminado correctamente.');
+    if (ok) mostrarAviso('ok', `Se eliminó ${equipoEliminado?.codigo || 'el equipo'} del inventario.`);
   };
 
-  const equiposFiltrados = filtro === 'Todos'
-    ? equipos
-    : equipos.filter(item => item.estado === filtro);
+  const equipoEnEdicion = equipos.find((item) => String(item.id) === String(idEditando));
+
+  const terminoBusqueda = busqueda.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
+  const equiposFiltrados = equipos.filter((item) => {
+    const coincideEstado = filtro === 'Todos' || item.estado === filtro;
+    const textoEquipo = `${item.codigo} ${item.nombre}`
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('es');
+    return coincideEstado && (!terminoBusqueda || textoEquipo.includes(terminoBusqueda));
+  });
 
   const encabezado = (
     <View>
+      <View style={styles.searchSection}>
+        <Text style={styles.searchLabel}>Buscar en el inventario</Text>
+        <View style={styles.searchBox}>
+          <Text style={styles.searchIcon}>⌕</Text>
+          <TextInput
+            testID="buscar-inventario"
+            value={busqueda}
+            onChangeText={setBusqueda}
+            placeholder="Nombre o código (ej. INV-0049)"
+            placeholderTextColor="#7B918D"
+            returnKeyType="search"
+            autoCorrect={false}
+            accessibilityLabel="Buscar equipo por nombre o código"
+            style={styles.searchInput}
+          />
+          {busqueda.length > 0 && (
+            <Pressable
+              onPress={() => setBusqueda('')}
+              accessibilityRole="button"
+              accessibilityLabel="Limpiar búsqueda"
+              hitSlop={8}
+              style={styles.clearSearchButton}
+            >
+              <Text style={styles.clearSearchText}>×</Text>
+            </Pressable>
+          )}
+        </View>
+      </View>
       {/* FORMULARIO */}
       <View style={[styles.formCard, idEditando !== null && styles.formCardEditing]}>
         <View style={styles.formHeader}>
           <Text style={styles.formTitle}>
-            {idEditando !== null ? ' Modo Edición: Modificar Equipo' : ' Registrar Nuevo Equipo'}
+            {idEditando !== null ? 'Editar equipo' : 'Registrar nuevo equipo'}
           </Text>
           {idEditando !== null && (
             <Pressable
@@ -729,6 +663,14 @@ function PantallaAdaptativa() {
             </Pressable>
           )}
         </View>
+
+        {idEditando !== null && equipoEnEdicion ? (
+          <View style={styles.editContext}>
+            <Text style={styles.editContextLabel}>ESTÁS EDITANDO</Text>
+            <Text style={styles.editContextName}>{equipoEnEdicion.nombre}</Text>
+            <Text style={styles.editContextCode}>{equipoEnEdicion.codigo} · Los cambios se guardarán en este registro</Text>
+          </View>
+        ) : null}
 
         {aviso !== null && (
           <View
@@ -742,10 +684,14 @@ function PantallaAdaptativa() {
           </View>
         )}
 
+        <View style={styles.fieldLabelRow}>
+          <Text style={styles.fieldLabel}>Nombre del equipo</Text>
+          <Text style={styles.requiredLabel}>Obligatorio</Text>
+        </View>
         <TextInput
           ref={nombreRef}
           style={[styles.input, errores.nombre && styles.inputError]}
-          placeholder="Nombre del equipo (Ej. Portátil HP ProBook)"
+          placeholder="Ej. Portátil HP ProBook"
           placeholderTextColor="#94A3B8"
           value={nombre}
           onChangeText={(texto) => {
@@ -755,14 +701,19 @@ function PantallaAdaptativa() {
           returnKeyType="next"
           blurOnSubmit={false}
           onSubmitEditing={() => ubicacionRef.current?.focus()}
-          accessibilityLabel="Nombre del equipo"
+          accessibilityLabel="Nombre del equipo, obligatorio"
+          accessibilityHint={errores.nombre || 'Escribe el nombre del equipo.'}
         />
-        {errores.nombre ? <Text style={styles.errorText}>{errores.nombre}</Text> : null}
+        {errores.nombre ? <Text style={styles.errorText} accessibilityRole="alert">{errores.nombre}</Text> : null}
 
+        <View style={styles.fieldLabelRow}>
+          <Text style={styles.fieldLabel}>Ubicación</Text>
+          <Text style={styles.requiredLabel}>Obligatorio</Text>
+        </View>
         <TextInput
           ref={ubicacionRef}
           style={[styles.input, errores.ubicacion && styles.inputError]}
-          placeholder="Ubicación (Ej. Laboratorio de Sistemas)"
+          placeholder="Ej. Laboratorio de Sistemas"
           placeholderTextColor="#94A3B8"
           value={ubicacion}
           onChangeText={(texto) => {
@@ -771,14 +722,19 @@ function PantallaAdaptativa() {
           }}
           returnKeyType="done"
           onSubmitEditing={guardarOActualizarEquipo}
-          accessibilityLabel="Ubicación del equipo"
+          accessibilityLabel="Ubicación del equipo, obligatorio"
+          accessibilityHint={errores.ubicacion || 'Escribe dónde se encuentra el equipo.'}
         />
-        {errores.ubicacion ? <Text style={styles.errorText}>{errores.ubicacion}</Text> : null}
+        {errores.ubicacion ? <Text style={styles.errorText} accessibilityRole="alert">{errores.ubicacion}</Text> : null}
 
+        <View style={styles.fieldLabelRow}>
+          <Text style={styles.fieldLabel}>Precio</Text>
+          <Text style={styles.optionalLabel}>Opcional · COP</Text>
+        </View>
         <TextInput
           ref={precioRef}
           style={[styles.input, errores.precio && styles.inputError]}
-          placeholder="Precio en pesos colombianos (opcional)"
+          placeholder="Ej. 1250000"
           placeholderTextColor="#94A3B8"
           value={precio}
           onChangeText={(texto) => {
@@ -787,19 +743,24 @@ function PantallaAdaptativa() {
           }}
           keyboardType="decimal-pad"
           accessibilityLabel="Precio del equipo en pesos colombianos"
+          accessibilityHint={errores.precio || 'Campo opcional. Ingresa un valor igual o mayor que cero.'}
         />
-        {errores.precio ? <Text style={styles.errorText}>{errores.precio}</Text> : null}
+        {errores.precio ? <Text style={styles.errorText} accessibilityRole="alert">{errores.precio}</Text> : null}
 
+        <View style={styles.fieldLabelRow}>
+          <Text style={styles.fieldLabel}>Características</Text>
+          <Text style={styles.optionalLabel}>Opcional</Text>
+        </View>
         <TextInput
           style={[styles.input, styles.inputMultilinea]}
-          placeholder="Características (marca, modelo, memoria, capacidad, etc.)"
+          placeholder="Marca, modelo, memoria, capacidad..."
           placeholderTextColor="#94A3B8"
           value={caracteristicas}
           onChangeText={setCaracteristicas}
           multiline
           numberOfLines={3}
           textAlignVertical="top"
-          accessibilityLabel="Características del equipo"
+          accessibilityLabel="Características del equipo, opcional"
         />
 
         <Pressable
@@ -836,34 +797,7 @@ function PantallaAdaptativa() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.asistenteBarra}>
-        <View style={styles.asistenteBarraTexto}>
-          <Text style={styles.asistenteBarraTitulo}>
-            {mostrarIA ? 'Consulta inteligente del inventario' : 'Asistente local disponible'}
-          </Text>
-          <Text style={styles.asistenteBarraDescripcion}>
-            {mostrarIA
-              ? 'Las respuestas se obtienen de los equipos guardados en este dispositivo.'
-              : 'Pregunta por el nombre, la ubicación o el estado de un equipo.'}
-          </Text>
-        </View>
-        <Pressable
-          testID="alternar-asistente-ia"
-          accessibilityRole="button"
-          accessibilityLabel={mostrarIA ? 'Volver al inventario' : 'Abrir asistente de inventario'}
-          style={({ pressed }) => [styles.asistenteBoton, pressed && styles.asistenteBotonPresionado]}
-          onPress={() => setMostrarIA((valorActual) => !valorActual)}
-        >
-          <Text style={styles.asistenteBotonTexto}>
-            {mostrarIA ? 'Volver al inventario' : 'Abrir asistente IA'}
-          </Text>
-        </Pressable>
-      </View>
-
-      {mostrarIA ? (
-        <AsistenteIA equipos={equipos} />
-      ) : (
-        <FlatList
+      <FlatList
           key={numColumns}
           ref={listaInventarioRef}
           data={equiposFiltrados}
@@ -888,9 +822,12 @@ function PantallaAdaptativa() {
           const bgBadge =
             item.estado === 'Operativo' ? '#ECFDF5' :
             item.estado === 'En reparación' ? '#FFFBEB' : '#FEF2F2';
+          const bordeEstado =
+            item.estado === 'Operativo' ? '#10B981' :
+            item.estado === 'En reparación' ? '#F59E0B' : '#EF4444';
 
           return (
-            <View style={[styles.itemCard, { width: numColumns === 3 ? '32.3%' : numColumns === 2 ? '48.5%' : '100%' }]}>
+            <View style={[styles.itemCard, { borderLeftColor: bordeEstado, width: numColumns === 3 ? '32.3%' : numColumns === 2 ? '48.5%' : '100%' }]}>
               <View style={styles.itemHeader}>
                 <Text style={styles.itemCode}>{item.codigo}</Text>
                 <View style={[styles.badge, { backgroundColor: bgBadge }]}>
@@ -899,9 +836,16 @@ function PantallaAdaptativa() {
               </View>
 
               <Text style={styles.itemName}>{item.nombre}</Text>
-              <Text style={styles.itemLocation}>📍 {item.ubicacion}</Text>
-              <Text style={styles.itemDetail}>Precio {item.precioTipo === 'estimado' ? 'estimado' : 'registrado'}: {item.precio == null || item.precio === '' ? 'Sin registrar' : '$' + Number(item.precio).toLocaleString('es-CO') + ' COP'}</Text>
-              <Text style={styles.itemDetail}>Características de referencia: {item.caracteristicas?.trim() || 'Por confirmar'}</Text>
+              <View style={styles.itemLocationBox}>
+                <Text style={styles.itemLocationIcon}>⌖</Text>
+                <Text style={styles.itemLocation}>{item.ubicacion}</Text>
+              </View>
+              <View style={styles.itemInfoBox}>
+                <Text style={styles.itemDetailLabel}>VALOR {item.precioTipo === 'estimado' ? 'ESTIMADO' : 'REGISTRADO'}</Text>
+                <Text style={styles.itemPrice}>{item.precio == null || item.precio === '' ? 'Sin registrar' : '$' + Number(item.precio).toLocaleString('es-CO') + ' COP'}</Text>
+                <Text style={styles.itemDetailLabel}>CARACTERÍSTICAS</Text>
+                <Text style={styles.itemDetail}>{item.caracteristicas?.trim() || 'Por confirmar'}</Text>
+              </View>
 
               <View style={styles.itemActions}>
                 <Pressable
@@ -931,9 +875,9 @@ function PantallaAdaptativa() {
                   accessibilityRole="alert"
                   accessibilityLiveRegion="polite"
                 >
-                  <Text style={styles.confirmacionTitulo}>¿Eliminar {item.codigo}?</Text>
+                  <Text style={styles.confirmacionTitulo}>¿Eliminar este equipo?</Text>
                   <Text style={styles.confirmacionTexto}>
-                    El registro se quitará del inventario guardado en este dispositivo.
+                    {item.nombre} ({item.codigo}) se quitará del inventario. Esta acción no se puede deshacer.
                   </Text>
                   <View style={styles.confirmacionAcciones}>
                     <Pressable
@@ -950,7 +894,7 @@ function PantallaAdaptativa() {
                       accessibilityRole="button"
                       accessibilityLabel="Confirmar eliminación"
                     >
-                      <Text style={styles.btnConfirmarEliminarTexto}>Sí, eliminar</Text>
+                      <Text style={styles.btnConfirmarEliminarTexto}>Sí, eliminar equipo</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -960,68 +904,115 @@ function PantallaAdaptativa() {
           }}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No hay registros de equipos disponibles.</Text>
+              <Text style={styles.emptyText}>
+                {busqueda.trim()
+                  ? `No encontramos equipos para “${busqueda.trim()}”. Prueba con otro nombre o código.`
+                  : filtro !== 'Todos'
+                    ? `No hay equipos con estado “${filtro}”.`
+                    : 'No hay registros de equipos disponibles.'}
+              </Text>
             </View>
           }
         />
+
+      {mostrarIA ? (
+        <View
+          style={[
+            styles.chatPanel,
+            {
+              width: Math.min(420, width - 24),
+              height: Math.min(680, height - 104),
+            },
+          ]}
+        >
+          <View style={styles.chatHeader}>
+            <View style={styles.chatAvatar}><Text style={styles.chatAvatarText}>IA</Text></View>
+            <View style={styles.chatHeaderCopy}>
+              <Text style={styles.chatTitle}>Asistente de inventario</Text>
+              <Text style={styles.chatSubtitle}>Consulta los equipos guardados</Text>
+            </View>
+            <Pressable
+              testID="alternar-asistente-ia"
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar asistente"
+              style={styles.chatCloseButton}
+              onPress={() => setMostrarIA(false)}
+            >
+              <Text style={styles.chatCloseText}>×</Text>
+            </Pressable>
+          </View>
+          <AsistenteIA equipos={equipos} />
+        </View>
+      ) : (
+        <Pressable
+          testID="alternar-asistente-ia"
+          accessibilityRole="button"
+          accessibilityLabel="Abrir chat del asistente de inventario"
+          accessibilityHint="Abre una ventana de chat sobre el inventario"
+          style={({ pressed }) => [styles.chatFab, pressed && styles.chatFabPressed]}
+          onPress={() => setMostrarIA(true)}
+        >
+          <Text style={styles.chatFabIcon}>💬</Text>
+          <Text style={styles.chatFabLabel}>IA</Text>
+        </Pressable>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  contenedorRaiz: { flex: 1, backgroundColor: '#F8FAFC' },
-  tabsBar: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingTop: 12,
-    paddingBottom: 4,
-  },
-  tabBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: '#E2E8F0',
-    alignItems: 'center',
-  },
-  tabBtnActivo: { backgroundColor: '#0F172A' },
-  tabBtnTexto: { fontSize: 12, fontWeight: '700', color: '#475569' },
-  tabBtnTextoActivo: { color: '#FFFFFF' },
-
-  contenedorComparativo: { flex: 1, paddingHorizontal: 12, paddingTop: 10 },
-  tituloComparativo: { fontSize: 13, fontWeight: '700', color: '#0F172A', marginBottom: 10 },
-  textoCargandoComparativo: { fontSize: 13, color: '#64748B', marginTop: 20, textAlign: 'center' },
-  listaComparativa: { paddingBottom: 24 },
-
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  asistenteBarra: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-    marginHorizontal: 12,
-    marginBottom: 10,
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#99F6E4',
-    backgroundColor: '#F0FDFA',
-  },
-  asistenteBarraTexto: { flex: 1, minWidth: 220, gap: 2 },
-  asistenteBarraTitulo: { color: '#134E4A', fontSize: 14, fontWeight: '800' },
-  asistenteBarraDescripcion: { color: '#115E59', fontSize: 12, lineHeight: 18 },
-  asistenteBoton: {
-    minHeight: 44,
-    borderRadius: 9,
-    paddingHorizontal: 14,
+  container: { flex: 1, backgroundColor: '#F2F7F6' },
+  chatFab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    width: 62,
+    height: 62,
+    borderRadius: 31,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#0F766E',
+    borderWidth: 3,
+    borderColor: '#D9F4EE',
+    shadowColor: '#134E4A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.24,
+    shadowRadius: 8,
+    elevation: 7,
   },
-  asistenteBotonPresionado: { opacity: 0.72 },
-  asistenteBotonTexto: { color: '#FFFFFF', fontSize: 13, fontWeight: '800' },
+  chatFabPressed: { transform: [{ scale: 0.95 }], opacity: 0.9 },
+  chatFabIcon: { fontSize: 23, lineHeight: 27 },
+  chatFabLabel: { color: '#FFFFFF', fontSize: 9, fontWeight: '800', marginTop: -1 },
+  chatPanel: {
+    position: 'absolute',
+    right: 12,
+    bottom: 84,
+    overflow: 'hidden',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#CDE5E0',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#123B35',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 18,
+    elevation: 12,
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: '#0F766E',
+  },
+  chatAvatar: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#D9F4EE', alignItems: 'center', justifyContent: 'center' },
+  chatAvatarText: { color: '#0F766E', fontSize: 13, fontWeight: '900' },
+  chatHeaderCopy: { flex: 1, gap: 2 },
+  chatTitle: { color: '#FFFFFF', fontSize: 14, fontWeight: '800' },
+  chatSubtitle: { color: '#D5F1EB', fontSize: 11 },
+  chatCloseButton: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF24' },
+  chatCloseText: { color: '#FFFFFF', fontSize: 26, lineHeight: 30, fontWeight: '400' },
   scrollContainer: { padding: 12, paddingBottom: 30, maxWidth: 1400, alignSelf: 'center', width: '100%' },
   listaInventario: { flex: 1, minHeight: 0 },
   listaInventarioWeb: { overflowY: 'auto', overscrollBehaviorY: 'contain', touchAction: 'pan-y' },
@@ -1034,11 +1025,26 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   formCardEditing: {
-    borderColor: '#2563EB',
-    borderWidth: 1.5,
-    backgroundColor: '#EFF6FF',
+    borderColor: '#0F766E',
+    borderWidth: 2,
+    backgroundColor: '#F0FDFA',
   },
-  formHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  formHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8 },
+  editContext: { padding: 12, marginBottom: 12, borderRadius: 10, borderWidth: 1, borderColor: '#99D7CC', backgroundColor: '#E4F7F2' },
+  editContextLabel: { color: '#0F766E', fontSize: 10, fontWeight: '900', letterSpacing: 0.8 },
+  editContextName: { color: '#164E45', fontSize: 15, lineHeight: 20, fontWeight: '800', marginTop: 3 },
+  editContextCode: { color: '#35635C', fontSize: 11, lineHeight: 16, marginTop: 3 },
+  fieldLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5, gap: 8 },
+  fieldLabel: { color: '#263F3A', fontSize: 12, fontWeight: '700' },
+  requiredLabel: { color: '#B5473D', fontSize: 10, fontWeight: '700' },
+  optionalLabel: { color: '#718985', fontSize: 10, fontWeight: '600' },
+  searchSection: { marginBottom: 12 },
+  searchLabel: { color: '#35635C', fontSize: 12, fontWeight: '800', marginBottom: 6, marginLeft: 2 },
+  searchBox: { minHeight: 50, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#BFD9D4', borderRadius: 12 },
+  searchIcon: { color: '#0F766E', fontSize: 24, lineHeight: 28, fontWeight: '700' },
+  searchInput: { flex: 1, minWidth: 0, paddingVertical: 10, fontSize: 14, color: '#16332F' },
+  clearSearchButton: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#E7F2F0' },
+  clearSearchText: { color: '#35635C', fontSize: 21, lineHeight: 24, fontWeight: '600' },
   formTitle: { fontSize: 14, fontWeight: '700', color: '#0F172A' },
   cancelText: { fontSize: 12, fontWeight: '600', color: '#EF4444' },
   input: {
@@ -1086,34 +1092,45 @@ const styles = StyleSheet.create({
   rowWrapper: { justifyContent: 'space-between' },
   itemCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#DCEAE7',
+    borderLeftWidth: 4,
+    shadowColor: '#164E45',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 9,
+    elevation: 2,
   },
-  itemHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  itemCode: { fontSize: 11, fontWeight: '700', color: '#64748B' },
-  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
-  badgeText: { fontSize: 10, fontWeight: '700' },
-  itemName: { fontSize: 15, fontWeight: '700', color: '#1E293B', marginBottom: 4 },
-  itemLocation: { fontSize: 12, color: '#64748B', marginBottom: 5 },
-  itemDetail: { fontSize: 12, color: '#475569', marginBottom: 5, lineHeight: 18 },
-  itemActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 10 },
-  btnEdit: { backgroundColor: '#EFF6FF', paddingHorizontal: 12, minHeight: 44, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  btnEditText: { color: '#1D4ED8', fontSize: 12, fontWeight: '600' },
-  btnDelete: { backgroundColor: '#FEF2F2', paddingHorizontal: 12, minHeight: 44, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  btnDeleteText: { color: '#DC2626', fontSize: 12, fontWeight: '600' },
+  itemHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8 },
+  itemCode: { fontSize: 11, fontWeight: '800', color: '#0F766E', letterSpacing: 0.6 },
+  badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20 },
+  badgeText: { fontSize: 10, fontWeight: '800' },
+  itemName: { fontSize: 17, lineHeight: 23, fontWeight: '800', color: '#16332F', marginBottom: 10 },
+  itemLocationBox: { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: '#F0F8F6', borderRadius: 9, paddingHorizontal: 10, paddingVertical: 8, marginBottom: 11 },
+  itemLocationIcon: { color: '#0F766E', fontSize: 16, fontWeight: '800' },
+  itemLocation: { flex: 1, fontSize: 12, color: '#35635C', fontWeight: '600' },
+  itemInfoBox: { backgroundColor: '#F8FAF9', borderRadius: 10, padding: 11, marginBottom: 12, gap: 4 },
+  itemDetailLabel: { fontSize: 9, color: '#718985', fontWeight: '800', letterSpacing: 0.8, marginTop: 3 },
+  itemPrice: { fontSize: 14, color: '#164E45', fontWeight: '800', marginBottom: 3 },
+  itemDetail: { fontSize: 12, color: '#526965', lineHeight: 18 },
+  itemActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, borderTopWidth: 1, borderTopColor: '#E8F0EE', paddingTop: 10 },
+  btnEdit: { backgroundColor: '#0F766E', paddingHorizontal: 16, minHeight: 44, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+  btnEditText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
+  btnDelete: { backgroundColor: '#FFF5F4', paddingHorizontal: 14, minHeight: 44, borderRadius: 9, borderWidth: 1, borderColor: '#F5D1CE', alignItems: 'center', justifyContent: 'center' },
+  btnDeleteText: { color: '#B5473D', fontSize: 12, fontWeight: '700' },
   confirmacionEliminar: {
     marginTop: 10,
-    borderWidth: 1,
-    borderColor: '#FCA5A5',
-    backgroundColor: '#FFF7F7',
-    borderRadius: 10,
-    padding: 12,
+    borderWidth: 1.5,
+    borderColor: '#EF9A91',
+    backgroundColor: '#FFF4F2',
+    borderRadius: 12,
+    padding: 14,
   },
-  confirmacionTitulo: { color: '#991B1B', fontSize: 13, fontWeight: '800' },
-  confirmacionTexto: { color: '#7F1D1D', fontSize: 12, lineHeight: 18, marginTop: 4 },
+  confirmacionTitulo: { color: '#8E2D25', fontSize: 14, fontWeight: '800' },
+  confirmacionTexto: { color: '#713A35', fontSize: 12, lineHeight: 18, marginTop: 5 },
   confirmacionAcciones: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 10 },
   btnCancelarEliminar: {
     minHeight: 44,

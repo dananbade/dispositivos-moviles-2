@@ -1,0 +1,138 @@
+{
+  "[trash]/0000.dat": {
+    "size": 408,
+    "sha256": "a5e66ee567cb25c65cc581bf4e0eca106b562c6ad55f34d61e38569d3ad94e5e"
+  },
+  "[trash]/0003.dat": {
+    "size": 243,
+    "sha256": "1c2343bfd3051a4969c7f879cfa13c944586fa99841cf1bd426031fba8980573"
+  },
+  "[trash]/0004.dat": {
+    "size": 362,
+    "sha256": "53e022ed6697cc174f827e475e8b5e8425f4da40a6be9abb470f9ecffca3d2ae"
+  },
+  "docProps/app.xml": {
+    "size": 1132,
+    "sha256": "be664981c3141cddfc59362beb287ebf20d0773660e2dd6faac5968a5930a081"
+  },
+  "word/document.xml": {
+    "size": 14280,
+    "sha256": "03c56e3effaf97910eab6adb0aa2faa2a25a9d7f11775dba57842659e76e4a67"
+  },
+  "[trash]/0001.dat": {
+    "size": 318,
+    "sha256": "d65eeea1e79944217f9a8dd0dba5b896e6eda407682fefe247d12d2f8d5e884d"
+  },
+  "word/styles.xml": {
+    "size": 349401,
+    "sha256": "2f7e54264afad9fd54de0f19dfc1e3575bb9f3deff1b60bb7876e9d51bf8980c"
+  },
+  "word/stylesWithEffects.xml": {
+    "size": 438131,
+    "sha256": "463ae0928cf0d84775dbf8cf18d6c3029f6707c81bf590f6d6dd8757a5e93f15"
+  },
+  "word/settings.xml": {
+    "size": 2535,
+    "sha256": "51a0d348fe85965c66e4748a03c3c0d055d78455514f03cb121c334af7d73689"
+  },
+  "word/webSettings.xml": {
+    "size": 438,
+    "sha256": "349d36de7434d09f86987ff671d8814964a0588c1e630c06e562cda7e75e9f95"
+  },
+  "word/fontTable.xml": {
+    "size": 2811,
+    "sha256": "79385fb7f60247507ecaffc292e9ebd52ea0657b8634f629ba6fccc54011d6bb"
+  },
+  "word/theme/theme1.xml": {
+    "size": 10939,
+    "sha256": "e3a8ab7db9ca7afca56f5f2820a56e8b660016c647773555b060b0a02ac76941"
+  },
+  "[trash]/0002.dat": {
+    "size": 170,
+    "sha256": "47ef42fd57f66018c0e626c1e765ea1f57eb6a2a4c7d13898a5c4fa7b5bb64a2"
+  },
+  "customXml/_rels/item1.xml.rels": {
+    "size": 295,
+    "sha256": "1ca6c9a64edcebe24ee703a54403611b322d96da33371779e742d2d3f7ed7a6c"
+  },
+  "customXml/itemProps1.xml": {
+    "size": 354,
+    "sha256": "c542307b13ec29a8b546217bb37936ab4822e044b265d2952985ec3d6afed24e"
+  },
+  "word/numbering.xml": {
+    "size": 5513,
+    "sha256": "70976f19cbcd896e51890859fe6ecb3467a5a7ad0c040160fedc5a1993cb09ce"
+  },
+  "docProps/thumbnail.jpeg": {
+    "size": 8324,
+    "sha256": "96367138dc44ce09bf2c8f0f8e49348a1478d2c5c0af69bbc2bbc38b63cdcead"
+  },
+  "customXml/item2.xml": {
+    "size": 8468,
+    "sha256": "50d49bb08799981711c5b1c6c5a083f5b00e8a986e2f09f2b75c8325e6c4dc3e"
+  },
+  "customXml/itemProps2.xml": {
+    "size": 201,
+    "sha256": "a5bf81d051d95aef68013bd383bef826883cd890aab128e5416678809d7bce7a"
+  },
+  "customXml/item3.xml": {
+    "size": 219,
+    "sha256": "5efcaf9ad70d9c29f406ee438f8f428b021a881d2c5afff0e53b00b1f67ae51e"
+  },
+  "customXml/itemProps3.xml": {
+    "size": 201,
+    "sha256": "998a9d8c6af5798bbfdc9269f2fb60f323608b669a01a866d33d550a3c3a19fe"
+  },
+  "customXml/_rels/item2.xml.rels": {
+    "size": 296,
+    "sha256": "2a6aee4c8a9714223a3568077411a0c82d11b484b1c9ab93a19d50b99c57baa5"
+  },
+  "customXml/_rels/item3.xml.rels": {
+    "size": 296,
+    "sha256": "3aa4054f7f463c6d441102c960783aa7f937d6945a0a885b624a66aafaeedb6c"
+  },
+  "[trash]/0005.dat": {
+    "size": 423,
+    "sha256": "6e3c5f1364cb6695450361d6c46a3ab33557ed23c57fc4cc0df53d942e8bd365"
+  },
+  "[trash]/0006.dat": {
+    "size": 342,
+    "sha256": "bd9bfb333cd358d11763e130817740803fe021de4df502bd0a525bc63cb5e2f4"
+  },
+  "customXml/item1.xml": {
+    "size": 260,
+    "sha256": "fd38bf9d14299ec0909557ff8b08b38816a6860d488f11a7c53dc63eb13ee44f"
+  },
+  "customXml/item4.xml": {
+    "size": 384,
+    "sha256": "a2080bd0fa91a65dfe0245c6c52b860445732e15cc1588d1e1f5b5128e304016"
+  },
+  "customXml/itemProps4.xml": {
+    "size": 201,
+    "sha256": "7fb462e8add71234ea9d4ba39f2491d1aee85178c7c62536b3bc5b6ceebf3bf9"
+  },
+  "docProps/custom.xml": {
+    "size": 402,
+    "sha256": "b1074c3e3592df344cfe5259ef19619f2dd2c94e85e6f99909541b92f067fae4"
+  },
+  "customXml/_rels/item4.xml.rels": {
+    "size": 296,
+    "sha256": "3c0d4d955517fe8112c945b1e56f63d5bef3c0005ccb627e40acda432e1cdc1d"
+  },
+  "_rels/.rels": {
+    "size": 882,
+    "sha256": "8a0a30d9ac17eb3381f462f7192916702d49bb3d0e7400675028d3c051663f6b"
+  },
+  "docProps/core.xml": {
+    "size": 789,
+    "sha256": "eb9559e801238601a665e5e5f5149bdcd80640e12d4c30346577e0e51ecad68d"
+  },
+  "[Content_Types].xml": {
+    "size": 2260,
+    "sha256": "9c40ed66da5d51814978ecc7c35f59bf2ee308ce73dd81151614c9035644fb83"
+  },
+  "word/_rels/document.xml.rels": {
+    "size": 1656,
+    "sha256": "8a2a9eb849d27b7d6c03f874f46f6248de068970553926dadbd61692f2f95381"
+  }
+}

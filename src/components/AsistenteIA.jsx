@@ -84,9 +84,24 @@ export default function AsistenteIA({ equipos = [] }) {
   const [pregunta, setPregunta] = useState('');
   const [respuesta, setRespuesta] = useState('');
   const [indice, setIndice] = useState(0);
+  const [busquedaEquipo, setBusquedaEquipo] = useState('');
   const { width } = useWindowDimensions();
   const equipo = equipos[indice % Math.max(equipos.length, 1)];
   const formularioEnFila = width >= 700;
+  const consultaEquipo = normalizar(busquedaEquipo);
+  const todosLosEquiposCoincidentes = consultaEquipo
+    ? equipos
+      .filter((item) => normalizar(`${item.codigo} ${item.nombre}`).includes(consultaEquipo))
+    : [];
+  const equiposCoincidentes = todosLosEquiposCoincidentes.slice(0, 6);
+
+  function seleccionarEquipo(item) {
+    const nuevoIndice = equipos.findIndex((equipoDisponible) => String(equipoDisponible.id) === String(item.id));
+    if (nuevoIndice < 0) return;
+    setIndice(nuevoIndice);
+    setBusquedaEquipo('');
+    setRespuesta('');
+  }
 
   function consultar() {
     if (!pregunta.trim()) {
@@ -146,13 +161,58 @@ export default function AsistenteIA({ equipos = [] }) {
       automaticallyAdjustKeyboardInsets
     >
       <View style={styles.encabezado}>
-        <Text style={styles.titulo} accessibilityRole="header">Asistente del inventario</Text>
+        <Text style={styles.titulo} accessibilityRole="header">¿Qué necesitas saber?</Text>
         <Text style={styles.introduccion}>
-          Consulta los datos del equipo seleccionado. Te indicaré cuando algo no esté registrado o sea solo una estimación.
+          Busca y selecciona un equipo por nombre o código. Después pregunta por su estado, ubicación, precio o características.
         </Text>
       </View>
 
       <View style={styles.equipoCard}>
+        <Text style={styles.etiquetaBusqueda}>Buscar equipo</Text>
+        <TextInput
+          testID="buscar-equipo-chat"
+          value={busquedaEquipo}
+          onChangeText={setBusquedaEquipo}
+          placeholder="Nombre o código (ej. INV-0049)"
+          placeholderTextColor="#64748B"
+          accessibilityLabel="Buscar equipo para consultar por nombre o código"
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+          style={styles.entradaSelector}
+        />
+        {consultaEquipo ? (
+          <View style={styles.resultadosEquipo}>
+            {equiposCoincidentes.length ? (
+              <>
+                <Text style={styles.resultadosEtiqueta}>Selecciona un equipo</Text>
+                {equiposCoincidentes.map((item) => (
+                  <Pressable
+                    key={item.id}
+                    testID={`seleccionar-equipo-${item.codigo}`}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Consultar ${item.nombre}, código ${item.codigo}`}
+                    style={({ pressed }) => [styles.resultadoEquipo, pressed && styles.botonPresionado]}
+                    onPress={() => seleccionarEquipo(item)}
+                  >
+                    <View style={styles.resultadoEquipoTexto}>
+                      <Text style={styles.resultadoEquipoNombre} numberOfLines={1}>{item.nombre}</Text>
+                      <Text style={styles.resultadoEquipoCodigo}>{item.codigo}</Text>
+                    </View>
+                    <Text style={styles.resultadoEquipoEstado}>{item.estado}</Text>
+                  </Pressable>
+                ))}
+                {todosLosEquiposCoincidentes.length > 6 ? (
+                  <Text style={styles.resultadosNota}>Se muestran 6 coincidencias. Escribe más para acotar.</Text>
+                ) : null}
+              </>
+            ) : (
+              <Text style={styles.sinResultados}>No hay equipos que coincidan. Revisa el nombre o código.</Text>
+            )}
+          </View>
+        ) : null}
+
+        <View style={styles.divisorEquipo} />
         <Text style={styles.etiquetaEquipo}>Equipo seleccionado</Text>
         <Text testID="equipo-seleccionado" style={styles.nombreEquipo}>
           {equipo?.nombre ?? 'No hay equipos disponibles'}
@@ -225,6 +285,18 @@ const styles = StyleSheet.create({
   titulo: { fontSize: 24, fontWeight: '800', color: '#0F172A' },
   introduccion: { color: '#475569', fontSize: 14, lineHeight: 21 },
   equipoCard: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 12, padding: 16, gap: 6 },
+  etiquetaBusqueda: { color: '#1E293B', fontSize: 13, fontWeight: '700', marginBottom: 2 },
+  entradaSelector: { minHeight: 46, borderWidth: 1, borderColor: '#94A3B8', borderRadius: 9, paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#FFFFFF', color: '#0F172A', fontSize: 14 },
+  resultadosEquipo: { borderWidth: 1, borderColor: '#D7E4E1', borderRadius: 10, overflow: 'hidden', backgroundColor: '#F8FAF9', marginTop: 2 },
+  resultadosEtiqueta: { color: '#64748B', fontSize: 11, fontWeight: '700', paddingHorizontal: 10, paddingTop: 9, paddingBottom: 4 },
+  resultadoEquipo: { minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 10, paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#E2ECE9' },
+  resultadoEquipoTexto: { flex: 1, minWidth: 0, gap: 2 },
+  resultadoEquipoNombre: { color: '#0F172A', fontSize: 13, fontWeight: '700' },
+  resultadoEquipoCodigo: { color: '#0F766E', fontSize: 11, fontWeight: '700' },
+  resultadoEquipoEstado: { color: '#475569', fontSize: 10, textAlign: 'right' },
+  resultadosNota: { color: '#64748B', fontSize: 11, lineHeight: 16, padding: 9 },
+  sinResultados: { color: '#64748B', fontSize: 12, lineHeight: 18, padding: 10 },
+  divisorEquipo: { height: 1, backgroundColor: '#E2E8F0', marginVertical: 5 },
   etiquetaEquipo: { color: '#64748B', fontSize: 12, fontWeight: '700', textTransform: 'uppercase' },
   nombreEquipo: { color: '#0F172A', fontSize: 19, fontWeight: '800' },
   codigoEquipo: { color: '#475569', fontSize: 13, marginBottom: 4 },
